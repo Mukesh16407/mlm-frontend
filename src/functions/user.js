@@ -1,9 +1,9 @@
 import axios from "axios";
 
-export const createUser = async (name, parentId) => {
+export const CreateUser = async (name, parentId) => {
   try {
     const response = await axios.post(
-      `${import.meta.env.REACT_APP_API}/api/createUser`,
+      `https://metastic-world.onrender.com/api/createUser`,
       {
         name,
         parentId,
