@@ -1,32 +1,33 @@
 import { useState } from "react";
-import { CreateUser } from "../functions/user";
+import { CreateUser, getAllUsers } from "../functions/user";
 import { Box, Button, TextField, Typography } from "@mui/material";
-import { EarningsDistribution } from "./EarningsDistribution";
+import { EarningsDistributionForm } from "./EarningsDistribution";
+import PropTypes from "prop-types";
 
-export const UserSignup = () => {
-  const [user, setUser] = useState({
-    name:'',
-    parentId:''
-  });
+export const UserSignup = ({ setEarningDistribute, user, setUser }) => {
   const [errorMessage, setErrorMessage] = useState("");
 
+  const handleOnChange = (e) => {
+    const { name, value } = e.target;
+    setUser({ ...user, [name]: value });
+  };
 
-  const handleOnChange=(e)=>{
-    const {name, value} = e.target
-    setUser({...user, [name]:value})
-  }
-  const handleSubmit = () => {
-    console.log("Hello")
+  const handleSubmit = async () => {
     setErrorMessage("");
-    CreateUser(user.name, user.parentId);
-   
+    try {
+      await CreateUser(user.name, user.parentId);
+      await getAllUsers();
+      setUser({ name: "", parentId: null });
+    } catch (error) {
+      setErrorMessage("Failed to create user. Please try again.");
+      console.error("Error creating user:", error);
+    }
   };
 
   return (
     <Box>
       <Box sx={{ display: "flex", justifyContent: "space-around" }}>
         {errorMessage && <p className="error">{errorMessage}</p>}
-
         <Box
           sx={{
             display: "flex",
@@ -40,19 +41,19 @@ export const UserSignup = () => {
           <Typography sx={{ fontSize: "1.2rem" }}>User</Typography>
           <TextField
             fullWidth
-            id="outlined-basic"
-            label="Name."
+            id="name"
+            label="Name"
             variant="outlined"
-            name='name'
+            name="name"
             value={user.name}
             onChange={handleOnChange}
           />
           <TextField
             fullWidth
-            id="outlined-basic"
+            id="parentId"
             label="Parent ID (optional)"
             variant="outlined"
-            name='parentId'
+            name="parentId"
             value={user.parentId}
             onChange={handleOnChange}
           />
@@ -66,30 +67,14 @@ export const UserSignup = () => {
             </Button>
           </Box>
         </Box>
-        <EarningsDistribution />
+        <EarningsDistributionForm setEarningDistribute={setEarningDistribute} />
       </Box>
-      {/* <div className="user-signup-container">
-      <form onSubmit={handleSubmit}>
-        <label>
-          Name:
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </label>
-        <label>
-          Parent ID (optional):
-          <input
-            type="text"
-            value={parentId}
-            onChange={(e) => setParentId(e.target.value)}
-          />
-        </label>
-        <button type="submit">Create User</button>
-        {errorMessage && <p className="error">{errorMessage}</p>}
-      </form>
-    </div> */}
     </Box>
   );
+};
+
+UserSignup.propTypes = {
+  setEarningDistribute: PropTypes.func.isRequired,
+  user: PropTypes.object.isRequired,
+  setUser: PropTypes.func.isRequired,
 };
